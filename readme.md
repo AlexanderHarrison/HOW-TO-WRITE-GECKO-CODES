@@ -8,7 +8,7 @@
 ### What This Guide Does NOT Cover
 - AR Codes.
 - Obscure and lesser used gecko code commands.
-- PowerPC assembly. [WiiBrew Guide](https://wiibrew.org/wiki/Assembler_Tutorial).
+- PowerPC assembly. Here is a [WiiBrew Guide](https://wiibrew.org/wiki/Assembler_Tutorial), and [two](https://web.archive.org/web/20160307100538/https://www.nxp.com/files/product/doc/MPCFPE32B.pdf) [manuals](https://math-atlas.sourceforge.net/devel/assembly/ppc_isa.pdf).
 - What a debugger is.
 - What hex/hexadecimal is.
 
@@ -20,6 +20,9 @@ A gecko code provides a straightforward method of modifiying a game without need
 There are two main commands used in gecko codes:
 - `04`: Overwrite one instruction in the code.
 - `C2`: Insert any amount of instructions in the code.
+
+[There are more commands](https://web.archive.org/web/20191001120524/https://www.geckocodes.org/index.php?arsenal=1),
+but I haven't seen them used so I won't be covering them.
 
 These commands modify *code* at boot time, not the iso. **The code is a very small portion of an iso**.
 This code is contained in the DOL, [a special file in the iso](https://wiibrew.org/wiki/DOL).
@@ -35,8 +38,6 @@ I should mention there is some amount of static, inline data in the DOL.
 Some lookup tables and constants are located there.
 For example, function pointer tables for action states.
 
-[There are more commands](https://web.archive.org/web/20191001120524/https://www.geckocodes.org/index.php?arsenal=1),
-but I haven't seen them used so I won't be covering them.
 
 ## Anatomy of a Gecko Code
 
@@ -83,7 +84,7 @@ This is the command   This is the instruction to inject
  This is the offset into the DOL to inject
 ```
 
-Notice that the DOL offset is only 24 bits. 
+Notice that the DOL offset is only 24 bits.
 This is an offset into the DOL, not a RAM address.
 
 **This instruction won't be injected at address 0x0007ADD4**.
@@ -142,7 +143,7 @@ Open dolphin with the `-d` flag. This opens the debugger.
 Then open the game. Hit `Symbols->Load Map File`.
 If you are creating a code for Melee, use `Symbols->Load Other Map File` and select GTME01.map from [here](https://github.com/AlexanderHarrison/TrainingMode-More).
 
-### Tips
+### Tips and Addendum
 - If you've used a graphical debugger before, dolphin should be fairly straightforward to navigate.
 It can be prone to crashing, so make savestates.
 This won't restore breakpoints unfortunately.
@@ -191,8 +192,13 @@ blrl
 end:
 ```
 
-- For more information about PowerPC asm you can see [here](https://web.archive.org/web/20160307100538/https://www.nxp.com/files/product/doc/MPCFPE32B.pdf), or [here](https://math-atlas.sourceforge.net/devel/assembly/ppc_isa.pdf).
+- Technically, the offset into the DOL is 25 bits, not 24.
+If you need to set the 25th bit, you write the commands `C3` or `05`.
 
 ## Bundling Gecko Codes
 I've never used it, but [gecko](https://github.com/JLaferri/gecko) can help you merge multiple codes.
 This assembles multiple codes into one larger code, making iteration faster and easier.
+
+It also includes the powerpc-eabi-as.exe exe which you can use to assemble ppc if you need a custom scripted workflow.
+This binary is simply taked from the DevKitPro installation.
+You can get a powerpc-eabi-as binary for linux as well by downloading DevKitPro.
