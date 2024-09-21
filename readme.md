@@ -129,7 +129,7 @@ These branches will be automatically inserted.
 
 In the above example, I only intended to inject the first three instructions.
 `881f0024 # lbz r0, 0x24(r31)` is the instruction at the injection offset.
-You need to append this instruction, otherwise gecko will overwrite it.
+You need to append this instruction to the injection, otherwise it will be overwritten with the branch instruction.
 
 The final nop is added for padding.
 The `C2` command must be terminated with zeroes at the end of a line.
