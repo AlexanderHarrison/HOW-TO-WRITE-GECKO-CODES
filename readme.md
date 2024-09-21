@@ -121,12 +121,12 @@ These are the injected instructions:
 Injection is implemented with a branch to your injected code, then a branch back.
 These branches will be automatically inserted.
 
-Note that I actually only wanted the first three instructions here.
+In the above example, I only intended to inject the first three instructions.
 `881f0024 # lbz r0, 0x24(r31)` is the instruction at the injection offset.
 You need to append this instruction, otherwise gecko will overwrite it.
 
+The final nop is added for padding.
 The `2C` command must be terminated with zeroes at the end of a line.
-The final nop is just added for padding.
 
 ## The Actual Process Of Writing A Gecko Code
 ### Setup
@@ -159,3 +159,6 @@ or let the function occur then overwrite the result.
 
 If you want to add functionality, try to abuse debug features of your game.
 Lots of games have debug functions to display text on the screen, change model colours, etc.
+
+[This site](https://celestialamber.github.io/rlwinm-clrlwi-decoder/) decodes the rlwinm and clrlwi instructions to C code. 
+This makes these otherwise impenetrable instructions readable.
