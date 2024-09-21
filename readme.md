@@ -63,7 +63,8 @@ C207ae04 00000003 # zero z axis in Hitbox_UpdateHitboxPositions (newly instantia
 ## Commands
 
 ### The `04` Command
-Herre is an 04 command:
+This command replaces one asm instruction in the DOL.
+Here is an example 04 command:
 ```
 0407add8 901f0060
 ```
@@ -85,8 +86,8 @@ It will be injected into the DOL offset + this offset.
 For Melee, the injected RAM address is 0x8007ADD4.
 
 ### The `C2` Command
-This command is more powerful, but more complicated and also a little weird.
-This command can be arbitrarily long.
+This command injects multiple asm instruction into the DOL.
+It is more powerful, but more complicated.
 
 Here is a C2 command:
 ```
@@ -125,7 +126,7 @@ Note that I actually only wanted the first three instructions here.
 You need to append this instruction, otherwise gecko will overwrite it.
 
 The `2C` command must be terminated with zeroes at the end of a line.
-The final nop is just for padding.
+The final nop is just added for padding.
 
 ## The Actual Process Of Writing A Gecko Code
 ### Setup
@@ -142,7 +143,7 @@ It can be prone to crashing, so make savestates.
 This won't restore breakpoints unfortunately.
 
 I use dolphin's replace instruction feature to test out changes.
-Loading a savestate will restore any replaced instruction.
+Loading a savestate will restore any replaced instructions.
 
 To convert human readable asm to hex, use [this site](https://disasm.pro/).
 Ensure it is set to PowerPC and Big Endian.
@@ -151,3 +152,10 @@ Note that **registers are not prefixed with 'r' on this site**.
 Make notes of addresses, offsets, etc.
 There is a LOT to keep track of, you don't want to keep pointer chasing.
 If something is heap allocated, use savestates to avoid needing to repeatedly find addresses.
+
+If you want something to stop occuring, try to find the function that does it,
+then prevent it from being called. You could replace the calling instruction with a nop,
+or let the function occur then overwrite the result.
+
+If you want to add functionality, try to abuse debug features of your game.
+Lots of games have debug functions to display text on the screen, change model colours, etc.
