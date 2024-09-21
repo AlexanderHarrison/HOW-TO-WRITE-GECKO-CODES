@@ -10,7 +10,7 @@
 - Obscure and lesser used gecko code commands.
 - PowerPC assembly. [WiiBrew Guide](https://wiibrew.org/wiki/Assembler_Tutorial).
 - What a debugger is.
-- What hexadecimal is.
+- What hex/hexadecimal is.
 
 This guide is meant for people who are comfortable programming at a low level.
 
@@ -19,7 +19,7 @@ A gecko code provides a straightforward method of modifiying a game without need
 
 There are two main commands used in gecko codes:
 - `04`: Overwrite one instruction in the code.
-- `2C`: Insert any amount of instructions in the code.
+- `C2`: Insert any amount of instructions in the code.
 
 These commands modify *code* at boot time, not the iso. **The code is a very small portion of an iso**.
 This code is contained in the DOL, [a special file in the iso](https://wiibrew.org/wiki/DOL).
@@ -30,6 +30,10 @@ If you want to modify a character's jump height using these commands, you can't 
 then use a gecko command to modify that address.
 Instead, you need to modify the game's *code* by insterting your own *code* that sets the jump height.
 You can only write code.
+
+I should mention there is some amount of static, inline data in the DOL.
+Some lookup tables and constants are located there.
+For example, function pointer tables for action states.
 
 [There are more commands](https://web.archive.org/web/20191001120524/https://www.geckocodes.org/index.php?arsenal=1),
 but I haven't seen them used so I won't be covering them.
@@ -127,7 +131,7 @@ In the above example, I only intended to inject the first three instructions.
 You need to append this instruction, otherwise gecko will overwrite it.
 
 The final nop is added for padding.
-The `2C` command must be terminated with zeroes at the end of a line.
+The `C2` command must be terminated with zeroes at the end of a line.
 
 ## The Actual Process Of Writing A Gecko Code
 ### Setup
@@ -139,30 +143,55 @@ Then open the game. Hit `Symbols->Load Map File`.
 If you are creating a code for Melee, use `Symbols->Load Other Map File` and select GTME01.map from [here](https://github.com/AlexanderHarrison/TrainingMode-More).
 
 ### Tips
-If you've used a graphical debugger before dolphin should be fairly straightforward to navigate.
+- If you've used a graphical debugger before, dolphin should be fairly straightforward to navigate.
 It can be prone to crashing, so make savestates.
 This won't restore breakpoints unfortunately.
 
-I use dolphin's replace instruction feature to test out changes.
+- I use dolphin's replace instruction feature to test out changes.
 Loading a savestate will restore any replaced instructions.
 
-To convert human readable asm to hex, use [this site](https://disasm.pro/).
+- To convert human readable asm to hex, use [this site](https://disasm.pro/).
 Ensure it is set to PowerPC and Big Endian.
 Note that **registers are not prefixed with 'r' on this site**.
 
-Make notes of addresses, offsets, etc.
+- Make notes of addresses, offsets, etc.
 There is a LOT to keep track of, you don't want to keep pointer chasing.
 If something is heap allocated, use savestates to avoid needing to repeatedly find addresses.
 
-If you want something to stop occuring, try to find the function that does it,
+- If you want something to stop occuring, try to find the function that does it,
 then prevent it from being called. You could replace the calling instruction with a nop,
 or let the function occur then overwrite the result.
 
-If you want to add functionality, try to abuse debug features of your game.
+- If you want to add functionality, try to abuse debug features of your game.
 Lots of games have debug functions to display text on the screen, change model colours, etc.
 
-[This site](https://celestialamber.github.io/rlwinm-clrlwi-decoder/) decodes the rlwinm and clrlwi instructions to C code. 
+- [This site](https://celestialamber.github.io/rlwinm-clrlwi-decoder/) decodes the rlwinm and clrlwi instructions to C code. 
 This makes these otherwise impenetrable instructions readable.
+
+- This clever pattern lets you save state between injection invocations.
+This is supported by gecko, but may not be supported by disasm.pro (at least in this format):
+```
+mflr r0
+bl variables
+mflr r3
+mtlr r0
+
+; Your code here
+lwz r6, 0(r3) ; e.x. load var0
+addi r6, r6, 1
+stw r6, 4(r3) ; e.x. var1 = var0 + 1
+
+b end
+
+variables:
+blrl
+.4byte 0 ; var 0
+.4byte 0 ; var 1
+
+end:
+```
+
+- For more information about PowerPC asm you can see [here](https://web.archive.org/web/20160307100538/https://www.nxp.com/files/product/doc/MPCFPE32B.pdf), or [here](https://math-atlas.sourceforge.net/devel/assembly/ppc_isa.pdf).
 
 ## Bundling Gecko Codes
 I've never used it, but [gecko](https://github.com/JLaferri/gecko) can help you merge multiple codes.
