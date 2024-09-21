@@ -175,44 +175,57 @@ This makes these otherwise impenetrable instructions readable.
 If you need to set the 25th bit, you write the commands `C3` or `05`.
 
 - This injection pattern lets you save state between injection invocations.
-It also allows you to give labels to the state locations.
 This is supported by gecko, but may not be supported by disasm.pro (at least in this format):
 ```
+bl Code
+
+###### Link table ######
+Table: 
+.long 0 # var0
+.long 0 # var1
+###### Link table end ######
+
+Code:
+mflr r12   #load link table pointer to r12
+
+##### Your code here #####
+ldz r3, 0(r12) # e.x. load var0
+addi r3, r3, 1
+stw r3, 4(r12) # e.x. save var1 = var0 + 1
+```
+<details>
+<summary>You can use macros to add labels to these variables</summary> 
+
+```
+##### Macros ######
 .macro tableLoadW regTarget, regTable, table, label
 
 lwz \regTarget,  \label - \table(\regTable)
-.endm
-
-.macro tableSaveW regSource, regTable, table, label
-
-lwz \regSource,  \label - \table(\regTable)
 .endm
 
 .macro tableLoadPtr regTarget, regTable, table, label
 
 addi \regTarget,  \regTable, \label - \table
 .endm
-
+##### Macros end #####
 
 bl Code
 
 ###### Link table ######
-Table: 
-
+Table:
 WordConst1: .long 0
 Text1: .string "text1"
-.align 2
-
+.align 4
 ###### Link table end ######
 
 Code:
-
 mflr r12   #load link table pointer to r12
-tableLoadW r3, r12, Table, WordConst1   # load word constant 'WordConst1' to r3
-tableLoadPtr r4, r12, Table, Text1    # load pointer to 'Text1' string variable to r4
-tableSaveW r3, r12, Table, WordConst1   # save r3 to word constant 'WordConst1'
 
+##### Your code here #####
+tableLoadW r3, r12, Table, WordConst1 # e.x. load word constant 'WordConst1' to r3
+tableLoadPtr r4, r12, Table, Text1    # e.x. load pointer to 'Text1' string variable to r4
 ```
+</details>
 
 ## Bundling Gecko Codes
 I've never used it, but [gecko](https://github.com/JLaferri/gecko) can help you merge multiple codes.
