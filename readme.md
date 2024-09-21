@@ -3,6 +3,7 @@
 ### What This Guide Covers
 - How to write gecko codes in the year 2024. 
 - Some tips on using the dolphin debugger.
+- Bundling multiple Gecko code
 
 ### What This Guide Does NOT Cover
 - AR Codes.
@@ -162,3 +163,7 @@ Lots of games have debug functions to display text on the screen, change model c
 
 [This site](https://celestialamber.github.io/rlwinm-clrlwi-decoder/) decodes the rlwinm and clrlwi instructions to C code. 
 This makes these otherwise impenetrable instructions readable.
+
+## Bundling Gecko Codes
+I've never used it, but [gecko](https://github.com/JLaferri/gecko) can help you merge multiple codes.
+This assembles multiple codes into one larger code, making iteration faster and easier.
