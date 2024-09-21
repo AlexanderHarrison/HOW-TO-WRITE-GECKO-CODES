@@ -149,7 +149,8 @@ It can be prone to crashing, so make savestates.
 This won't restore breakpoints unfortunately.
 
 - I use dolphin's replace instruction feature to test out changes.
-Loading a savestate will restore any replaced instructions.
+Loading a savestate will restore any instructions replaced after the savestate.
+It will not remove breakpoints.
 
 - To convert human readable asm to hex, use [this site](https://disasm.pro/).
 Ensure it is set to PowerPC and Big Endian.
