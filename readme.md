@@ -171,31 +171,48 @@ Lots of games have debug functions to display text on the screen, change model c
 - [This site](https://celestialamber.github.io/rlwinm-clrlwi-decoder/) decodes the rlwinm and clrlwi instructions to C code. 
 This makes these otherwise impenetrable instructions readable.
 
-- This clever pattern lets you save state between injection invocations.
-This is supported by gecko, but may not be supported by disasm.pro (at least in this format):
-```
-mflr r0
-bl variables
-mflr r3
-mtlr r0
-
-; Your code here
-lwz r6, 0(r3) ; e.x. load var0
-addi r6, r6, 1
-stw r6, 4(r3) ; e.x. var1 = var0 + 1
-
-b end
-
-variables:
-blrl
-.4byte 0 ; var 0
-.4byte 0 ; var 1
-
-end:
-```
-
 - Technically, the offset into the DOL is 25 bits, not 24.
 If you need to set the 25th bit, you write the commands `C3` or `05`.
+
+- This injection pattern lets you save state between injection invocations.
+It also allows you to give labels to the state locations.
+This is supported by gecko, but may not be supported by disasm.pro (at least in this format):
+```
+.macro tableLoadW regTarget, regTable, table, label
+
+lwz \regTarget,  \label - \table(\regTable)
+.endm
+
+.macro tableSaveW regSource, regTable, table, label
+
+lwz \regSource,  \label - \table(\regTable)
+.endm
+
+.macro tableLoadPtr regTarget, regTable, table, label
+
+addi \regTarget,  \regTable, \label - \table
+.endm
+
+
+bl Code
+
+###### Link table ######
+Table: 
+
+WordConst1: .long 0
+Text1: .string "text1"
+.align 2
+
+###### Link table end ######
+
+Code:
+
+mflr r12   #load link table pointer to r12
+tableLoadW r3, r12, Table, WordConst1   # load word constant 'WordConst1' to r3
+tableLoadPtr r4, r12, Table, Text1    # load pointer to 'Text1' string variable to r4
+tableSaveW r3, r12, Table, WordConst1   # save r3 to word constant 'WordConst1'
+
+```
 
 ## Bundling Gecko Codes
 I've never used it, but [gecko](https://github.com/JLaferri/gecko) can help you merge multiple codes.
