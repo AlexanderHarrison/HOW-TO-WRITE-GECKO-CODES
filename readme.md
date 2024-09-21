@@ -154,6 +154,7 @@ Loading a savestate will restore any replaced instructions.
 - To convert human readable asm to hex, use [this site](https://disasm.pro/).
 Ensure it is set to PowerPC and Big Endian.
 Note that **registers are not prefixed with 'r' on this site**.
+For more complex codes use [this tool](https://github.com/JLaferri/gecko).
 
 - Make notes of addresses, offsets, etc.
 There is a LOT to keep track of, you don't want to keep pointer chasing.
