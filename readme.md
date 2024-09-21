@@ -20,15 +20,14 @@ There are two main commands used in gecko codes:
 - `04`: Overwrite one instruction in the code.
 - `2C`: Insert any amount of instructions in the code.
 
-These commands modify *code* at boot time, not the iso. **The code is a very small portion of an iso.**.
+These commands modify *code* at boot time, not the iso. **The code is a very small portion of an iso**.
 This code is contained in the DOL, [a special file in the iso](https://wiibrew.org/wiki/DOL).
 The DOL is loaded into a special offset in RAM when the game boots up.
 For Melee, DOL offset is 0x8000_0000.
 
-If you want to modify a character's jump height using these commadns, you can't find the *jump_height* location in RAM, 
+If you want to modify a character's jump height using these commands, you can't find the *jump_height* location in RAM, 
 then use a gecko command to modify that variable.
 Instead, you need to modify the game's *code* by insterting your own *code* that sets the jump height.
-There is no gecko command to write to RAM.
 You can only write code.
 
 [There are more commands](https://web.archive.org/web/20191001120524/https://www.geckocodes.org/index.php?arsenal=1),
@@ -75,24 +74,25 @@ Herre is an 04 command:
 0407add8 901f0060 # zero z axis in Hitbox_UpdateHitboxPositions (new frame hitbox position)
 ```
 
-This command is only one line. Here are the parts:
+This command is always one line. Here are the parts:
 ```
 This is the command   This is the instruction to inject
  v                          v
 04     07add4             901f0054
           ^
- This is the DOL offset to inject the instruction
+ This is the offset into the DOL to inject
 ```
 
 Notice that the DOL offset is only 24 bits. 
 This is an offset into the DOL, not a RAM address.
 
 **This instruction won't be injected at address 0x0007ADD4**.
-It will be injected into
-
+It will be injected into the DOL offset + this offset.
+For Melee, the injected RAM address is 0x8007ADD4.
 
 ### The `C2` Command
 This command is more powerful, but more complicated and also a little weird.
+This command can be arbitrarily long.
 
 Here is a C2 command:
 ```
@@ -108,8 +108,8 @@ This is the command   This is how many LINES of instructions to inject
  v                          v
 C2   008404             00000003
         ^
- This is the address to inject code
+ This is the offset into the DOL to inject code
 ```
 Please note that this lists the number of *lines of instructions*, **NOT** the number of instructions to inject.
-In this command, we inject 5 instructions, not 5
-This tripped me up.
+This has tripped me up.
+In this command, we inject 5 asm instruction in 3 lines.
