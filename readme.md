@@ -3,7 +3,7 @@
 ### What This Guide Covers
 - How to write gecko codes in the year 2024. 
 - Some tips on using the dolphin debugger.
-- Bundling multiple Gecko code
+- Bundling multiple Gecko codes.
 
 ### What This Guide Does NOT Cover
 - AR Codes.
