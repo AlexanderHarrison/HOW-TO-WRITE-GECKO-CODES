@@ -44,9 +44,9 @@ For example, function pointer tables for action states.
 Here is a gecko code:
 ```
 $Flatzone Everywhere [Aitch, Others]
-C2008404 00000003 # zero z axis in Fighter_UpdateHurtboxPosition
+C2008414 00000003 # zero z axis in Fighter_UpdateHurtboxPosition
 38000000 901f0030
-901f003c 881f0024
+901f003c 8001001c
 60000000 00000000
 C207ae6c 00000002 # zero z axis in Hitbox_UpdateHitboxPositions (previous frame hitbox position)
 38000000 901f0054
@@ -97,9 +97,9 @@ It is more powerful, but more complicated.
 
 Here is a C2 command:
 ```
-C2008404 00000003
+C2008414 00000003
 38000000 901f0030
-901f003c 881f0024
+901f003c 8001001c
 60000000 00000000
 ```
 
@@ -107,7 +107,7 @@ The first line is special.
 ```
 This is the command   This is how many LINES of instructions to inject
  v                          v
-C2   008404             00000003
+C2   008414             00000003
         ^
  This is the offset into the DOL to inject code
 ```
@@ -120,7 +120,7 @@ These are the injected instructions:
 38000000 # li r0, 0
 901f0030 # stw r0, 0x30(r31)
 901f003c # stw r0, 0x3c(r31)
-881f0024 # lbz r0, 0x24(r31)
+8001001c # lwz r0, 0x1c(sp)
 60000000 # nop
 ```
 
@@ -128,7 +128,7 @@ Injection is implemented with a branch to your injected code, then a branch back
 These branches will be automatically inserted.
 
 In the above example, I only intended to inject the first three instructions.
-`881f0024 # lbz r0, 0x24(r31)` is the instruction at the injection offset.
+`8001001c # lwz r0, 0x1c(sp)` is the instruction at the injection offset.
 You need to append this instruction to the injection, otherwise it will be overwritten with the branch instruction.
 
 The final nop is added for padding.
