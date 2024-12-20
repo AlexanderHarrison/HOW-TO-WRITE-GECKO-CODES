@@ -142,6 +142,44 @@ Open dolphin with the `-d` flag. This opens the debugger.
 
 Then open the game. Hit `Symbols->Load Map File`.
 If you are creating a code for Melee, use `Symbols->Load Other Map File` and select GTME01.map from [here](https://github.com/AlexanderHarrison/TrainingMode-More).
+You can also place it in the `Maps` folder in the dolphin config directory to automatically load it.
+
+### Writing
+I write my asm in a simple text file in vim:
+```asm
+    # Play Alarm on Shield Grab. Injected at 0x80092B34. r3 is 1 if transitioning from shield to grab.
+
+    cmpwi r3, 0
+    beq Exit
+
+    # Save r3
+    mr r17, r3
+
+    # call SFX_PlayCommon(7)
+    li r3, 7
+    lis r4, 0x8002
+    ori r4, r4, 0x4030
+    mtctr r4
+    bctrl
+
+    # restore r3
+    mr r3, r17
+Exit:
+    # replaced instruction
+    cmpwi r3, 0
+```
+
+I use the following shell script (requires [devkitpro](https://devkitpro.org/wiki/Getting_Started)) to compile, 
+then manually compose it into a gecko code.
+There are probably better ways.
+```
+#!/bin/bash
+FILE=${1}
+BINARY=${1%.*}
+cat ${FILE} | ${DEVKITPRO}/devkitPPC/bin/powerpc-eabi-as -mregnames -mgekko -mbig -o${BINARY}
+${DEVKITPRO}/devkitPPC/bin/powerpc-eabi-objdump -d ${BINARY} | grep '^\s*[0-9a-f]*:' | awk '{print $2 $3 $4 $5}' | paste -d' ' - - 
+```
+
 
 ### Tips and Addendum
 - If you've used a graphical debugger before, dolphin should be fairly straightforward to navigate.
@@ -152,7 +190,22 @@ This won't restore breakpoints unfortunately.
 Loading a savestate will restore any instructions replaced after the savestate.
 It will not remove breakpoints.
 
-- To convert human readable asm to hex, use [this site](https://disasm.pro/).
+- Because you have no clue where the gecko code handler will place your code, you cannot branch to a function normally.
+Be sure to understand the [ppc calling convention](https://www.ibm.com/docs/en/aix/7.3?topic=overview-register-usage-conventions). Thankfully it is simple.
+Use this pattern to call an ssbm function:
+```
+# Call Fighter_GetGObj(1) @ 0x80034110
+lis r4, 0x8003
+ori r4, r4, 0x4110
+mtctr r4
+li r3, 1
+bctrl
+```
+
+- Converting between floating point and integers is very annoying. There is no instruction to do this.
+You will need to write the float or int to memory, then read it back as a float.
+
+- To convert human readable asm to hex, you can use [this site](https://disasm.pro/).
 Ensure it is set to PowerPC and Big Endian.
 Note that **registers are not prefixed with 'r' on this site**.
 For more complex codes use [this tool](https://github.com/JLaferri/gecko).
