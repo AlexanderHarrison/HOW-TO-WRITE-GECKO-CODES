@@ -177,7 +177,7 @@ There are probably better ways.
 FILE=${1}
 BINARY=${1%.*}
 cat ${FILE} | ${DEVKITPRO}/devkitPPC/bin/powerpc-eabi-as -mregnames -mgekko -mbig -o${BINARY}
-${DEVKITPRO}/devkitPPC/bin/powerpc-eabi-objdump -d ${BINARY} | grep '^\s*[0-9a-f]*:' | awk '{print $2 $3 $4 $5}' | paste -d' ' - - 
+${DEVKITPRO}/devkitPPC/bin/powerpc-eabi-objdump -d -z ${BINARY} | grep '^\s*[0-9a-f]*:' | awk '{print $2 $3 $4 $5}' | paste -d' ' - - 
 ```
 
 
